@@ -1,0 +1,101 @@
+name: 'PR: Auto on Push'
+on:
+  push:
+    branches:
+      - 'kh-**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Historial completo
+
+      - name: Create PR if not exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          BASE="main"
+          LABEL="PR-Auto"
+
+          echo "Checking branch format"
+          if ! echo "$BRANCH" | grep -Eq '^kh-(feat|bug|chore)/[0-9]{8}/.+'; then
+            echo "Branch format not supported. Skipping PR creation."
+            exit 1
+          fi
+
+          echo "Generating PR title"
+          TYPE=$(echo "$BRANCH" | sed -E 's/^kh-([^/]+)\/.*/\1/')
+          TYPE_CAPITALIZED="${TYPE^}"
+          MESSAGE=$(echo "$BRANCH" | sed -E 's|^kh-[^/]+/[0-9]{8}/||' | tr '-' ' ')
+          TITLE="(PR Auto) ${TYPE_CAPITALIZED}: ${MESSAGE}"
+
+          echo "Ensuring label exist"
+          gh label view "$LABEL" > /dev/null 2>&1 || \
+          gh label create "$LABEL" \
+            --color "0E8A16" \
+            --description "PR automatically created by GitHub Actions" \
+             --force \ || true
+
+          echo "Fetching base branch and generating commit summary"
+          git fetch origin "$BASE"
+          VALID_COMMITS=$(git log origin/$BASE..HEAD \
+            --pretty=format:"%s (%an)" \
+            --no-merges | grep -E '^[a-zA-Z]+:' || true)
+
+          if [ -n "$VALID_COMMITS" ]; then
+            VALID_COMMITS=$(printf '%s\n' "$VALID_COMMITS" | sed 's/^[[:space:]]*//')
+          fi
+
+          echo "Checking if PR already exists for $BRANCH → $BASE"
+          EXISTING_PR=$(gh pr list \
+            --head "$BRANCH" \
+            --base "$BASE" \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists. Updated automatically by GitHub."
+            exit 0
+          fi
+
+          echo "Creating PR..."
+          gh pr create \
+            --head "$BRANCH" \
+            --base "$BASE" \
+            --title "$TITLE" \
+            --body "$(cat <<EOF
+            ## 🚀 PR automática
+
+            ### 📌 Información general
+
+            | Campo | Valor |
+            |-----|------|
+            | Repositorio | $GITHUB_REPOSITORY |
+            | Rama origen | $BRANCH |
+            | Rama destino | $BASE |
+            | Autor | $GITHUB_ACTOR |
+
+            ### 📝 Resumen
+
+            $VALID_COMMITS
+
+            ### ✅ Checklist
+            - [ ] Código probado
+            - [ ] Revisión manual realizada
+
+            ⚠️ **No hacer merge sin revisión.**
+          EOF
+            )" \
+            --label "$LABEL"
+
+          echo "Self-assigning myself as reviewer"
+          gh pr edit --add-reviewer "$GITHUB_ACTOR"

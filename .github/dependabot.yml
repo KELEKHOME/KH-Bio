@@ -1,0 +1,28 @@
+# DEPENDABOT
+
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: daily
+      time: '09:00'
+      timezone: Europe/Madrid
+    groups:
+      nuxt:
+        applies-to: version-updates
+        patterns:
+          - 'nuxt*'
+        update-types:
+          - minor
+          - patch
+    open-pull-requests-limit: 10
+    labels:
+      - dependabot
+      - dependencies npm
+      - security
+    commit-message:
+      prefix: "[NPM] "
+      prefix-development: "[NPM DEV] "
+      include: scope
+      

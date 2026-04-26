@@ -1,0 +1,48 @@
+{
+  "name": "KH-Bio",
+  "version": "1.0.0",
+  "description": "The KELEK HOME site",
+  "author": {
+    "name": "KELEK HOME | Jesús Iglesias",
+    "email": "kelek.home@gmail.com"
+  },
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://kelekhome.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/KHLanding.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/KHLanding/issues"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "npm@11.12.1",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@nuxt/ui": "^4.7.0",
+    "nuxt": "^4.4.2",
+    "tailwindcss": "^4.2.4",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.4"
+  },
+  "devDependencies": {
+    "@nuxt/eslint": "^0.7.0",
+    "eslint": "^8.57.1",
+    "eslint-plugin-vue": "^9.0.0",
+    "typescript": "^5.6.0"
+  }
+}
+ 
