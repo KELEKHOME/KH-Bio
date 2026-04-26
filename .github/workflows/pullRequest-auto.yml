@@ -43,11 +43,13 @@ jobs:
           TITLE="(PR Auto) ${TYPE_CAPITALIZED}: ${MESSAGE}"
 
           echo "Ensuring label exist"
-          gh label view "$LABEL" > /dev/null 2>&1 || \
-          gh label create "$LABEL" \
+
+          if ! gh label view "$LABEL" > /dev/null 2>&1; then
+            gh label create "$LABEL" \
             --color "0E8A16" \
             --description "PR automatically created by GitHub Actions" \
-             --force \ || true
+            --force
+          fi
 
           echo "Fetching base branch and generating commit summary"
           git fetch origin "$BASE"
