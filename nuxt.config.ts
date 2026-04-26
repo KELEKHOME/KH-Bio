@@ -1,4 +1,7 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+// /////////////////////////////////////////////// //
+//                    NUXT - CONFIG                //
+// /////////////////////////////////////////////// //
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
